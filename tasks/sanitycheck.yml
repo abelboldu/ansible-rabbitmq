@@ -1,0 +1,8 @@
+---
+
+- name: Check RabbitMQ status
+  command: rabbitmqctl status
+  register: rabbitmqctl_status
+
+- name: Debug RabbitMQ status
+  debug: var=rabbitmqctl_status

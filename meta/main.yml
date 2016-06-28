@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  author: Abel Boldú
+  description: RabbitMQ is a complete and highly reliable enterprise messaging system based on the emerging AMQP standard.
+  license: BSD
+  min_ansible_version: 1.9
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  - name: Ubuntu
+    versions:
+    - trusty
+    - xenial
+  categories:
+    - networking
+dependencies: []

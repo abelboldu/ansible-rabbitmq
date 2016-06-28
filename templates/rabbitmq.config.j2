@@ -1,0 +1,9 @@
+[
+  {rabbit, [
+{% if rabbitmq_tcp_address != '' %}
+    {tcp_listeners, [{"{{ rabbitmq_tcp_address }}", {{ rabbitmq_tcp_port }}}]}
+{% else %}
+    {tcp_listeners, [{{ rabbitmq_tcp_port }}]}
+{% endif %}
+  ]}
+].

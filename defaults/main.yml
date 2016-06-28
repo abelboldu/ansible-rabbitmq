@@ -1,0 +1,12 @@
+---
+
+# Plugins to enabled
+rabbitmq_plugins: []
+
+# VHOST
+rabbitmq_vhosts: []
+rabbitmq_users: []
+
+# rabbitmq TCP configuration
+rabbitmq_tcp_address: ''
+rabbitmq_tcp_port: 5672

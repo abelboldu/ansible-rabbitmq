@@ -1,0 +1,7 @@
+---
+
+- name: Enable rabbitmq plugins
+  rabbitmq_plugin:
+    names: "{{ rabbitmq_plugins | join(',') }}"
+  notify: restart rabbitmq-server
+  when: rabbitmq_plugins != []

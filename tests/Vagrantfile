@@ -1,0 +1,56 @@
+# -*- mode: ruby -*-
+
+PROVIDER = "libvirt"
+INVENTORY_PATH = 'inventory'
+
+######################################################################
+
+def inventory_line(ip, name, provider="libvirt")
+     "#{name} ansible_ssh_host=#{ip} ansible_ssh_private_key_file=.vagrant/machines/#{name}/#{provider}/private_key\n"
+end
+
+def start(config, box, name, ip, netmask = "255.255.255.0")
+  config.vm.define name do |node|
+    node.vm.box = box
+    node.vm.hostname = name
+    node.vm.network :private_network, :ip => ip, :netmask => netmask
+  end
+
+  config.vm.provision :shell,
+                      inline: "test -d /root/.ssh || cp -r /home/vagrant/.ssh /root"
+  config.vm.provision :shell,
+                      inline: "sudo sed -i 's/ALL=NOPASSWD:ALL/ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers"
+
+
+  File.open(INVENTORY_PATH, 'a') do |fd|
+    fd << inventory_line(ip, name, provier=PROVIDER)
+  end
+
+end
+
+def set_hardware(config, provider)
+  config.vm.provider provider do |machine|
+    machine.memory = 1024
+    machine.cpus = 1
+  end
+end
+
+
+######################################################################
+
+
+File.open(INVENTORY_PATH, 'w') do |fd|
+end
+
+Vagrant.configure(2) do |config|
+  set_hardware config, :libvirt
+  set_hardware config, :virtualbox
+
+  start config, "baremettle/ubuntu-14.04", "ubuntu", "192.168.1.100"
+  start config, "centos/7",                "centos", "192.168.1.101"
+
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "test.yml"
+  end
+
+end

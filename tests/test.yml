@@ -1,0 +1,18 @@
+---
+
+- hosts: all
+  remote_user: root
+  become: True
+  roles:
+    - role: openstack-repo
+      when: ansible_os_family == 'RedHat'
+    - role: ansible-rabbitmq
+      rabbitmq_plugins:
+        - 'rabbitmq_management'
+      rabbitmq_tcp_address: 0.0.0.0
+      rabbitmq_vhosts:
+        - name: test_vhost
+      rabbitmq_users:
+        - vhost: test_vhost
+          user: test_user
+          password: password1
