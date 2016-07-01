@@ -3,6 +3,7 @@
 - name: Check RabbitMQ status
   command: rabbitmqctl status
   register: rabbitmqctl_status
+  changed_when: False
 
 - name: Debug RabbitMQ status
   debug: var=rabbitmqctl_status

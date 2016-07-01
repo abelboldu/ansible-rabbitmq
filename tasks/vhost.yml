@@ -27,3 +27,5 @@
     state: present
     force: "{{ item.force|default('yes') }}"
   with_items: "{{ rabbitmq_users }}"
+  # Idempotence workaround
+  changed_when: False
