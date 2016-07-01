@@ -32,9 +32,8 @@ rabbitmq_conf_env:
 
 ### Configuration file
 
-|Name|Type|Description|Default|
-|----|----|-----------|-------|
 `rabbitmq_tcp_address` Listening address for the tcp interface
+
 `rabbitmq_tcp_port` Listening port for the tcp interface
 
 ### Plugins
