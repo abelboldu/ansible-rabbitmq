@@ -1,4 +1,7 @@
-# Rabbitmq Playbook
+Rabbitmq 
+========
+
+[![Build Status](https://travis-ci.org/abelboldu/ansible-rabbitmq.svg?branch=master)](https://travis-ci.org/abelboldu/ansible-rabbitmq) on master branch
 
 Playbook to install and configure RabbitMQ message broker.
 
