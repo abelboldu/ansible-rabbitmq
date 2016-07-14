@@ -1,2 +1,4 @@
+---
+
 - name: openstack-repo
   src: abelboldu.openstack-repo

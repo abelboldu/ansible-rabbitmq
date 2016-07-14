@@ -1,16 +1,6 @@
 ---
 
-- name: Start RabbitMQ server
-  service:
-    name: rabbitmq-server
-    state: restarted
-
 - name: Restart RabbitMQ server
   service:
-    name: rabbitmq-server
+    name: 'rabbitmq-server'
     state: restarted
-
-- name: Enable rabbitmq-server
-  service:
-    name: rabbitmq-server
-    enabled: True
