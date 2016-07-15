@@ -1,31 +1,24 @@
 ---
 
-- name: Ensure RabbitMQ is running
-  service:
-    name: rabbitmq-server
-    state: started
-
 - name: Add RabbitMQ vhosts
   rabbitmq_vhost:
-    name: "{{ item.name }}"
-    node: "{{ item.node | default('rabbit') }}"
-    tracing: "{{ item.tracing | default('no') }}"
+    name: '{{ item.name }}'
+    node: '{{ item.node | default("rabbit") }}'
     state: present
-  with_items: "{{ rabbitmq_vhosts }}"
+    tracing: '{{ item.tracing | default("no") }}'
+  with_items: '{{ rabbitmq_vhosts }}'
 
 - name: Add RabbitMQ users and set privileges
   rabbitmq_user:
-    user: "{{ item.user }}"
-    password: "{{ item.password }}"
-    vhost: "{{ item.vhost | default('/', false) }}"
+    user: '{{ item.user }}'
+    password: '{{ item.password }}'
+    vhost: '{{ item.vhost | default("/") }}'
     # Disabled due to ansible bug https://github.com/ansible/ansible-modules-extras/pull/2310
-    # node: "{{ item.node | default('rabbit') }}"
-    tags: "{{ (item.tags | default('')) | join(',') }}"
-    configure_priv: "{{ item.configure_priv | default('.*') }}"
-    read_priv: "{{ item.read_priv | default('.*') }}"
-    write_priv: "{{ item.write_priv | default('.*') }}"
+    # node: '{{ item.node | default("rabbit") }}'
+    tags: '{{ (item.tags | default("")) | join(",") }}'
+    configure_priv: '{{ item.configure_priv | default(".*") }}'
+    read_priv: '{{ item.read_priv | default(".*") }}'
+    write_priv: '{{ item.write_priv | default(".*") }}'
     state: present
-    force: "{{ item.force|default('yes') }}"
-  with_items: "{{ rabbitmq_users }}"
-  # Idempotence workaround
-  changed_when: False
+    force: '{{ item.force|default("no") }}'
+  with_items: '{{ rabbitmq_users }}'

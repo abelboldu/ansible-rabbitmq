@@ -1,6 +1,6 @@
 ---
 
 - name: Install rabbitmq-server
-  yum:
+  apt:
     name: 'rabbitmq-server'
     state: present

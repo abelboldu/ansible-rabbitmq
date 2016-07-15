@@ -1,10 +1,11 @@
 ---
 
 - include: packages.yml
-- meta: flush_handlers
 - include: configuration.yml
+
 - meta: flush_handlers
+
 - include: plugins.yml
 - include: vhost.yml
-- meta: flush_handlers
+
 - include: sanitycheck.yml

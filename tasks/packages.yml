@@ -3,5 +3,11 @@
 - include: packages_redhat.yml
   when: ansible_os_family == 'RedHat'
 
-- include: packages_debian.yml
-  when: ansible_os_family == 'Debian'
+- include: packages_ubuntu.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Enable and start RabbitMQ server
+  service:
+    enabled: True
+    name: rabbitmq-server
+    state: started
