@@ -70,3 +70,6 @@ script:
   - >-
     docker exec container
     tail -n 1 /var/log/ansible.log | grep -Eq "changed=0 +unreachable=0 +failed=0"
+
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
