@@ -39,12 +39,12 @@ before_install:
     --env="ANSIBLE_FORCE_COLOR=true"
     --env="ANSIBLE_LOG_PATH=/var/log/ansible.log"
     --name="container"
-    --volume="${PWD}:/etc/ansible/roles/ansible-rabbitmq:rw"
+    --volume="${PWD}:/etc/ansible/roles/rabbitmq:rw"
     ${run_opts} ${distribution}-${version}:ansible "${init}"
 
   - >-
     docker exec container ansible-galaxy -c
-    install -r /etc/ansible/roles/ansible-rabbitmq/tests/requirements.yml
+    install -r /etc/ansible/roles/rabbitmq/tests/requirements.yml
 
 install:
   - 'pip install -r requirements-devel.txt'
@@ -55,17 +55,17 @@ script:
   # Ansible syntax check.
   - >-
     docker exec container ansible-playbook
-    /etc/ansible/roles/ansible-rabbitmq/tests/test.yml --syntax-check
+    /etc/ansible/roles/rabbitmq/tests/test.yml --syntax-check
 
   # Test role.
   - >-
     docker exec container ansible-playbook
-    /etc/ansible/roles/ansible-rabbitmq/tests/test.yml --diff --verbose
+    /etc/ansible/roles/rabbitmq/tests/test.yml --diff --verbose
 
   # Test role idempotence.
   - >-
     docker exec container ansible-playbook
-    /etc/ansible/roles/ansible-rabbitmq/tests/test.yml --diff --verbose
+    /etc/ansible/roles/rabbitmq/tests/test.yml --diff --verbose
 
   - >-
     docker exec container

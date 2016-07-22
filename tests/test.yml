@@ -3,11 +3,17 @@
 - hosts: all
   become: True
 
+  pre_tasks:
+    - name: Update local apt cache
+      apt:
+        update_cache: True
+      when: ansible_distribution == 'Ubuntu'
+
   roles:
     - role: openstack-repo
       when: ansible_os_family == 'RedHat'
 
-    - role: ansible-rabbitmq
+    - role: rabbitmq
       rabbitmq_plugins:
         - 'rabbitmq_management'
       rabbitmq_tcp_address: '0.0.0.0'
