@@ -1,18 +1,20 @@
 ---
 
 env:
-  - distribution: 'centos'
-    version: 7
-    run_opts: '--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'
-    init: '/usr/lib/systemd/systemd'
-  - distribution: 'ubuntu'
-    version: 14.04
-    run_opts: ''
-    init: '/sbin/init'
-  - distribution: 'ubuntu'
-    version: 16.04
-    run_opts: '--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'
-    init: '/lib/systemd/systemd'
+  global:
+    - ANSIBLE_FORCE_COLOR: True
+    - ANSIBLE_LOG_PATH: './ansible.log'
+    - ANSIBLE_ROLES_PATH: '../'
+  matrix:
+    - distribution: 'centos'
+      version: 7
+      run_opts: '--privileged --volume="/sys/fs/cgroup:/sys/fs/cgroup:ro"'
+    - distribution: 'ubuntu'
+      version: 14.04
+      run_opts: ''
+    - distribution: 'ubuntu'
+      version: 16.04
+      run_opts: '--privileged --volume="/sys/fs/cgroup:/sys/fs/cgroup:ro"'
 
 language: 'python'
 
@@ -21,55 +23,54 @@ python:
 
 services:
   - 'docker'
+  - 'rabbitmq'
 
 sudo: 'required'
 
 
 before_install:
+  # Set up RabbitMQ user and permissions
+  - 'sudo rabbitmqctl add_user test testpw'
+  - 'sudo rabbitmqctl set_permissions test ".*" ".*" ".*"'
+
+install:
+  # Install test requirements
+  - 'pip install -r requirements-devel.txt'
+  - |
+    if [ -f tests/requirements.yml ]; then
+      ansible-galaxy install -r tests/requirements.yml
+    fi
+
+before_script:
+  # Build the container under test and run it.
   - >-
     docker build
     --file=tests/Dockerfile.${distribution}-${version}
-    --tag=${distribution}-${version}:ansible
+    --tag=${distribution}-${version}
     tests
 
   - >-
     docker run
     --add-host="docker:$(/sbin/ip route | awk '/default/ { print $3 }')"
     --detach
-    --env="ANSIBLE_FORCE_COLOR=true"
-    --env="ANSIBLE_LOG_PATH=/var/log/ansible.log"
     --name="container"
-    --volume="${PWD}:/etc/ansible/roles/rabbitmq:rw"
-    ${run_opts} ${distribution}-${version}:ansible "${init}"
-
-  - >-
-    docker exec container ansible-galaxy -c
-    install -r /etc/ansible/roles/rabbitmq/tests/requirements.yml
-
-install:
-  - 'pip install -r requirements-devel.txt'
+    ${run_opts} ${distribution}-${version}
 
 script:
+  # Check syntax of YAML files.
   - 'yamllint -c .yamllint.conf .'
 
-  # Ansible syntax check.
-  - >-
-    docker exec container ansible-playbook
-    /etc/ansible/roles/rabbitmq/tests/test.yml --syntax-check
+  # Check syntax of role.
+  - 'ansible-playbook -i container, -c docker tests/test.yml --syntax-check'
 
-  # Test role.
-  - >-
-    docker exec container ansible-playbook
-    /etc/ansible/roles/rabbitmq/tests/test.yml --diff --verbose
+  # Run role.
+  - 'ansible-playbook -i container, -c docker tests/test.yml --diff --verbose'
 
-  # Test role idempotence.
-  - >-
-    docker exec container ansible-playbook
-    /etc/ansible/roles/rabbitmq/tests/test.yml --diff --verbose
+  # Run role again to check idempotence failure.
+  - 'ansible-playbook -i container, -c docker tests/test.yml --diff --verbose'
 
-  - >-
-    docker exec container
-    tail -n 1 /var/log/ansible.log | grep -Eq "changed=0 +unreachable=0 +failed=0"
+  # Detect idempotence failure.
+  - 'tail -n 1 ansible.log | grep -Eq "changed=0 +unreachable=0 +failed=0"'
 
 notifications:
-  webhooks: https://galaxy.ansible.com/api/v1/notifications/
+  webhooks: 'https://galaxy.ansible.com/api/v1/notifications/'
