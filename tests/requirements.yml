@@ -1,4 +1,4 @@
 ---
 
-- name: openstack-repo
-  src: abelboldu.openstack-repo
+- name: 'openstack-repo'
+  src: 'abelboldu.openstack-repo'
