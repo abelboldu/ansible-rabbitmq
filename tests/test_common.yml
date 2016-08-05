@@ -1,0 +1,28 @@
+---
+
+- hosts: all
+  become: True
+
+  pre_tasks:
+    - name: Update local apt cache (Ubuntu)
+      apt:
+        update_cache: True
+      when: ansible_os_family == 'Debian'
+
+    - name: Install policycoreutils-python
+      yum:
+        name: 'policycoreutils-python'
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    # Workaround for selinux errors when using sqlite DB
+    - name: Set permissive SElinux for httpd domain
+      selinux_permissive:
+        name: 'httpd_t'
+        permissive: True
+      when:
+        - ansible_selinux
+        - ansible_virtualization_type != 'docker'
+
+  roles:
+    - openstack-repo
