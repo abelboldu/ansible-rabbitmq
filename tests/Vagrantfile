@@ -1,56 +1,66 @@
 # -*- mode: ruby -*-
-
-PROVIDER = "libvirt"
-INVENTORY_PATH = 'inventory'
+# vi: set ft=ruby :
 
 ######################################################################
 
-def inventory_line(ip, name, provider="libvirt")
-     "#{name} ansible_ssh_host=#{ip} ansible_ssh_private_key_file=.vagrant/machines/#{name}/#{provider}/private_key\n"
-end
-
-def start(config, box, name, ip, netmask = "255.255.255.0")
+def start(config, name, box_libvirt, box_virtualbox, extra_provisioners=[])
   config.vm.define name do |node|
-    node.vm.box = box
+    node.vm.provider :libvirt do |libvirt, libvirt_node|
+      libvirt_node.vm.box = box_libvirt
+    end
+
+    node.vm.provider :virtualbox do |virtualbox, virtualbox_node|
+      virtualbox_node.vm.box = box_virtualbox
+    end
+
     node.vm.hostname = name
-    node.vm.network :private_network, :ip => ip, :netmask => netmask
+
+    if not extra_provisioners.empty? then
+      for extra_provisioner in extra_provisioners do
+        extra_provisioner.call(node)
+      end
+    end
+
+    node.vm.provision :ansible do |ansible|
+      ansible.playbook = "test.yml"
+    end
   end
-
-  config.vm.provision :shell,
-                      inline: "test -d /root/.ssh || cp -r /home/vagrant/.ssh /root"
-  config.vm.provision :shell,
-                      inline: "sudo sed -i 's/ALL=NOPASSWD:ALL/ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers"
-
-
-  File.open(INVENTORY_PATH, 'a') do |fd|
-    fd << inventory_line(ip, name, provier=PROVIDER)
-  end
-
 end
 
 def set_hardware(config, provider)
   config.vm.provider provider do |machine|
-    machine.memory = 1024
+    machine.memory = 2048
     machine.cpus = 1
   end
 end
 
+def fix_sudoers(node)
+  node.vm.provision :shell,
+    inline: "echo 'vagrant ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/vagrant"
+end
+
+def install_python_ubuntu(node)
+  node.vm.provision :shell,
+    inline: "apt-get update && apt-get install -y python"
+end
 
 ######################################################################
-
-
-File.open(INVENTORY_PATH, 'w') do |fd|
-end
 
 Vagrant.configure(2) do |config|
   set_hardware config, :libvirt
   set_hardware config, :virtualbox
 
-  start config, "baremettle/ubuntu-14.04", "ubuntu", "192.168.1.100"
-  start config, "centos/7",                "centos", "192.168.1.101"
+  start config,
+        "ubuntu-trusty",
+        "sputnik13/trusty64",
+        "ubuntu/trusty64",
+        [method(:fix_sudoers)]
 
-  config.vm.provision :ansible do |ansible|
-    ansible.playbook = "test.yml"
-  end
+  start config,
+        "ubuntu-xenial",
+        "yk0/ubuntu-xenial",
+        "ubuntu/xenial64",
+        [method(:install_python_ubuntu)]
 
+  start config, "centos-7", "centos/7", "centos/7"
 end
