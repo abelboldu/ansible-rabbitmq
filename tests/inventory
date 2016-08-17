@@ -1,2 +1,0 @@
-ubuntu ansible_ssh_host=192.168.1.100 ansible_ssh_private_key_file=.vagrant/machines/ubuntu/libvirt/private_key
-centos ansible_ssh_host=192.168.1.101 ansible_ssh_private_key_file=.vagrant/machines/centos/libvirt/private_key

@@ -1,3 +1,4 @@
 *.log
 *.retry
 .vagrant/
+tests/inventory
