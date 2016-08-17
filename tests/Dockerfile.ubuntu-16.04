@@ -1,6 +1,0 @@
-FROM ubuntu:16.04
-
-# Python and sudo is required to run Ansible modules
-RUN apt-get update && apt-get install -y python sudo
-
-CMD ["/lib/systemd/systemd"]
