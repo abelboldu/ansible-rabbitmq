@@ -1,37 +1,20 @@
 ---
 
+dist: 'trusty'
+
 env:
   global:
     - ANSIBLE_FORCE_COLOR: True
     - ANSIBLE_LOG_PATH: './ansible.log'
     - ANSIBLE_ROLES_PATH: '../'
-  matrix:
-    - distribution: 'centos'
-      version: 7
-      run_opts: '--privileged --volume="/sys/fs/cgroup:/sys/fs/cgroup:ro"'
-    - distribution: 'ubuntu'
-      version: 14.04
-      run_opts: ''
-    - distribution: 'ubuntu'
-      version: 16.04
-      run_opts: '--privileged --volume="/sys/fs/cgroup:/sys/fs/cgroup:ro"'
 
 language: 'python'
 
 python:
   - '2.7'
 
-services:
-  - 'docker'
-  - 'rabbitmq'
-
 sudo: 'required'
 
-
-before_install:
-  # Set up RabbitMQ user and permissions
-  - 'sudo rabbitmqctl add_user test testpw'
-  - 'sudo rabbitmqctl set_permissions test ".*" ".*" ".*"'
 
 install:
   # Install test requirements
@@ -41,33 +24,18 @@ install:
       ansible-galaxy install -r tests/requirements.yml
     fi
 
-before_script:
-  # Build the container under test and run it.
-  - >-
-    docker build
-    --file=tests/Dockerfile.${distribution}-${version}
-    --tag=${distribution}-${version}
-    tests
-
-  - >-
-    docker run
-    --add-host="docker:$(/sbin/ip route | awk '/default/ { print $3 }')"
-    --detach
-    --name="container"
-    ${run_opts} ${distribution}-${version}
-
 script:
   # Check syntax of YAML files.
   - 'yamllint -c .yamllint.conf .'
 
   # Check syntax of role.
-  - 'ansible-playbook -i container, -c docker tests/test.yml --syntax-check'
+  - 'ansible-playbook -i localhost, -c local tests/test.yml --syntax-check'
 
   # Run role.
-  - 'ansible-playbook -i container, -c docker tests/test.yml --diff --verbose'
+  - 'ansible-playbook -i localhost, -c local tests/test.yml --diff --verbose'
 
   # Run role again to check idempotence failure.
-  - 'ansible-playbook -i container, -c docker tests/test.yml --diff --verbose'
+  - 'ansible-playbook -i localhost, -c local tests/test.yml --diff --verbose'
 
   # Detect idempotence failure.
   - 'tail -n 1 ansible.log | grep -Eq "changed=0 +unreachable=0 +failed=0"'
