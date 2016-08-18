@@ -9,5 +9,5 @@
 - name: Enable and start RabbitMQ server
   service:
     enabled: True
-    name: rabbitmq-server
+    name: 'rabbitmq-server'
     state: started
