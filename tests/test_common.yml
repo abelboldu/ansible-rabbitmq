@@ -7,6 +7,7 @@
     - name: Update local apt cache (Ubuntu)
       apt:
         update_cache: True
+      changed_when: False
       when: ansible_os_family == 'Debian'
 
     - name: Install policycoreutils-python
