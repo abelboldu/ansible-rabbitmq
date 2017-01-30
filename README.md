@@ -80,6 +80,9 @@ rabbitmq_users_definitions:
     - administrator
 ```
 
+## File descriptors
+
+`rabbitmq_fd_limit` Set it to a some value to override 1024 default (systemd supported)
 
 ## Testing
 

@@ -4,3 +4,9 @@
   service:
     name: 'rabbitmq-server'
     state: restarted
+
+- name: Reloaad systemd services and restart RabbitMQ
+  systemd:
+    name: 'rabbitmq-server'
+    state: restarted
+    daemon_reload: yes
