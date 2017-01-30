@@ -28,3 +28,13 @@
     src: 'erlang.cookie.j2'
   notify: Restart RabbitMQ server
   when: rabbitmq_cluster and rabbitmq_erlang_cookie is defined
+
+- name: Set up max file-descriptor limits in RabbitMQ systemd service
+  ini_file:
+    dest: /etc/systemd/system/rabbitmq-server.service.d/limits.conf
+    create: yes
+    section: Service
+    option: LimitNOFILE
+    value: '{{ rabbitmq_fd_limit }}'
+  notify: Reloaad systemd services and restart RabbitMQ
+  when: hostvars[inventory_hostname]['ansible_service_mgr'] == 'systemd' and rabbitmq_fd_limit is defined
