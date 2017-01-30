@@ -1,0 +1,10 @@
+---
+
+- name: Manage RabbitMQ policies
+  rabbitmq_policy:
+    name: '{{ item.name }}'
+    pattern: '{{ item.pattern | default(".*") }}'
+    vhost: '{{ item.vhost | default("/") }}'
+    state: '{{ item.state | default("present") }}'
+    tags: '{{ item.tags | default({}) }}'
+  with_items: '{{ rabbitmq_policies }}'

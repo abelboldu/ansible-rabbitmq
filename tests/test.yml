@@ -18,3 +18,11 @@
         - vhost: 'test_vhost'
           user: 'test_user'
           password: 'password1'
+  rabbitmq_policies:
+    - name: Test policy
+      vhost: '/'
+      pattern: '.*'
+      tags:
+        ha-mode: all
+        ha-sync-mode: automatic
+      state: present
