@@ -80,7 +80,24 @@ rabbitmq_users_definitions:
     - administrator
 ```
 
-## File descriptors
+### Policies
+
+`rabbitmq_policies_definitions` List of policies to be created (or removed if `state: absent` is set)
+
+Defining the policies configuration
+
+```yaml
+rabbitmq_policies_definitions:
+  - name: HA Policy
+    vhost: '/'
+    pattern: '.*'
+    tags:
+      ha-mode: all
+      ha-sync-mode: automatic
+    state: present
+```
+
+### File descriptors
 
 `rabbitmq_fd_limit` Set it to a some value to override 1024 default (systemd supported)
 

@@ -6,6 +6,7 @@ rabbitmq_plugins: []
 # VHOST
 rabbitmq_vhosts: []
 rabbitmq_users: []
+rabbitmq_policies: []
 
 # rabbitmq TCP configuration
 rabbitmq_tcp_address: ''
