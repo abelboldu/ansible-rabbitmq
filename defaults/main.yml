@@ -10,3 +10,5 @@ rabbitmq_users: []
 # rabbitmq TCP configuration
 rabbitmq_tcp_address: ''
 rabbitmq_tcp_port: 5672
+rabbitmq_cluster: False
+rabbitmq_erlang_cookie: 'THISISACOOKIEMONSTER'
