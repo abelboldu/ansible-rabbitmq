@@ -18,3 +18,13 @@
     src: 'rabbitmq-env.conf.j2'
   notify: Restart RabbitMQ server
   when: rabbitmq_conf_env is defined
+
+- name: RabbitMQ set Erlang cookie
+  template:
+    dest: '/var/lib/rabbitmq/.erlang.cookie'
+    group: 'rabbitmq'
+    owner: 'rabbitmq'
+    mode: 0400
+    src: 'erlang.cookie.j2'
+  notify: Restart RabbitMQ server
+  when: rabbitmq_cluster and rabbitmq_erlang_cookie is defined

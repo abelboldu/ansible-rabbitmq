@@ -39,6 +39,10 @@ rabbitmq_conf_env:
 
 `rabbitmq_tcp_port` Listening port for the tcp interface
 
+`rabbitmq_cluster` A boolean variable, when set to true, the role adds all nodes in a play group to a cluster setup in a configuration file. It depends on a `ansible_play_hosts` magic variable, found in ansible 2.2 or later
+
+`rabbitmq_erlang_cookie` Only used when `rabbitmq_cluster` is used, to identify members of a cluster
+
 ### Plugins
 
 `rabbitmq_plugins` List of plugins to activate.

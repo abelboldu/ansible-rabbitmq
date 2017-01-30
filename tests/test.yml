@@ -10,6 +10,7 @@
       rabbitmq_plugins:
         - 'rabbitmq_management'
       rabbitmq_tcp_address: '0.0.0.0'
+      rabbitmq_cluster: False
       rabbitmq_vhosts:
         - name: 'test_vhost'
       rabbitmq_users:
