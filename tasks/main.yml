@@ -14,6 +14,7 @@
 
 - include: plugins.yml
 - include: vhost.yml
+- include: user.yml
 - include: policy.yml
 
 - include: sanitycheck.yml

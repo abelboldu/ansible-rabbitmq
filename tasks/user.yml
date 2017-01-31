@@ -1,0 +1,15 @@
+---
+
+- name: Manage RabbitMQ users and privileges
+  rabbitmq_user:
+    user: '{{ item.user }}'
+    password: '{{ item.password | default("") }}'
+    vhost: '{{ item.vhost | default("/") }}'
+    node: 'rabbit@{{ ansible_hostname }}'
+    tags: '{{ (item.tags | default("")) | join(",") }}'
+    configure_priv: '{{ item.configure_priv | default(".*") }}'
+    read_priv: '{{ item.read_priv | default(".*") }}'
+    write_priv: '{{ item.write_priv | default(".*") }}'
+    state: '{{ item.state | default("present") }}'
+    force: '{{ item.force | default("no") }}'
+  with_items: '{{ rabbitmq_users }}'

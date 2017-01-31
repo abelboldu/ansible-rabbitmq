@@ -3,10 +3,10 @@ Rabbitmq
 
 [![Build Status](https://travis-ci.org/abelboldu/ansible-rabbitmq.svg?branch=master)](https://travis-ci.org/abelboldu/ansible-rabbitmq) on master branch
 
-Playbook to install and configure RabbitMQ message broker.
+Playbook that installs and configures RabbitMQ message broker.
 
-Standalone install, based on Mayeu.RabbitMQ role, without SSL or federation
-support.
+Supports standalone or simple cluster deployment, it is based on
+Mayeu.RabbitMQ role, without SSL or federation support.
 
 ## Installation
 
@@ -23,7 +23,7 @@ Ubuntu 14.04 (Trusty), Ubuntu 16.04 (Xenial) and CentOS 7
 ### Environment
 
 Use `rabbitmq_conf_env` so set Environment variables such as NODENAME,
-NODE_PORT, NODE_IP_ADDRESS, etc.
+HOSTNAME, RABBITMQ_USE_LONGNAME, NODE_PORT, NODE_IP_ADDRESS, etc.
 
 Example:
 
@@ -35,71 +35,103 @@ rabbitmq_conf_env:
 
 ### Configuration file
 
-`rabbitmq_tcp_address` Listening address for the tcp interface
+`rabbitmq_tcp_address` - listening address for the tcp interface, such
+as `0.0.0.0`.
 
-`rabbitmq_tcp_port` Listening port for the tcp interface
+`rabbitmq_tcp_port` - listening port for the tcp interface, such as `5672`.
 
-`rabbitmq_cluster` A boolean variable, when set to true, the role adds all nodes in a play group to a cluster setup in a configuration file. It depends on a `ansible_play_hosts` magic variable, found in ansible 2.2 or later
+`rabbitmq_cluster` - a boolean variable, when set to `True` the role will add
+all nodes in a play group to a cluster setup in a configuration file. It
+depends on a `ansible_play_hosts` magic variable, found in ansible 2.2
+or later.
 
-`rabbitmq_erlang_cookie` Only used when `rabbitmq_cluster` is used, to identify members of a cluster
+`rabbitmq_erlang_cookie` - only used when `rabbitmq_cluster` is used, to
+identify members of a single cluster.
 
 ### Plugins
 
-`rabbitmq_plugins` List of plugins to activate.
+`rabbitmq_plugins` - list of plugins to activate.
 
-### Vhosts and users
+### Users
 
-`rabbitmq_vhost_definitions` List of vhosts to create (see below).
-`rabbitmq_users_definitions` List of users, and associated vhost and password (see below).
-
-Defining the vhosts configuration
+`rabbitmq_userss` - list of users, and associated vhost and password.
+Example on defining the users configuration:
 
 ```yaml
-rabbitmq_vhost_definitions:
-  - name:    vhost1
-    node:    node_name #Optional, defaults to "rabbit"
-    tracing: yes       #Optional, defaults to "no"
+rabbitmq_userss:
+  - user:     user1
+    password: password1             # Optional, defaults to ""
+    vhost:    vhost1                # Optional, defaults to "/"
+    node:     node_name             # Optional, defaults to "rabbit"
+    configure_priv: "^resource.*"   # Optional, defaults to ".*"
+    read_priv: "^$"                 # Disallow reading (defaults to ".*")
+    write_priv: "^$"                # Disallow writing (defaults to ".*")
+  - user:     user2
+    password: password2
+    vhost:    vhost1
+    force:    no
+    tags:                           # Optional, user tags
+    - administrator
+  - user:     guest
+    state:    absent                # Optional, removes user (defaults to "present")
 ```
 
-Defining the users configuration:
+### Vhosts
+
+`rabbitmq_vhosts` - list of vhosts to create. Example on defining the
+vhosts configuration:
 
 ```yaml
-rabbitmq_users_definitions:
-  - vhost:    vhost1
-    user:     user1
-    password: password1
-    node:     node_name  # Optional, defaults to "rabbit"
-    configure_priv: "^resource.*" # Optional, defaults to ".*"
-    read_priv: "^$" # Disallow reading.
-    write_priv: "^$" # Disallow writing.
-  - vhost:    vhost1
-    user:     user2
-    password: password2
-    force:    no
-    tags:                # Optional, user tags
-    - administrator
+rabbitmq_vhosts:
+  - name:     vhost1
+    node:     node_name             # Optional, defaults to "rabbit"
+    tracing:  yes                   # Optional, defaults to "no"
+    state:    present               # Optional, defaults to "present"
 ```
 
 ### Policies
 
-`rabbitmq_policies_definitions` List of policies to be created (or removed if `state: absent` is set)
-
-Defining the policies configuration
+`rabbitmq_policies` - list of policies to be created (or removed if
+`state: absent` is set). Example on defining the policies configuration:
 
 ```yaml
-rabbitmq_policies_definitions:
-  - name: HA Policy
-    vhost: '/'
-    pattern: '.*'
-    tags:
+rabbitmq_policies:
+  - name:     HA Policy
+    vhost:    '/'                   # Optional, defaults to "/"
+    pattern:  '.*'                  # Optional, defaults to ".*"
+    tags:                           # Optional, defaults to "{}"
       ha-mode: all
       ha-sync-mode: automatic
-    state: present
+    state:    present               # Optional, defaults to "present"
+```
+
+### Cluster setup
+
+This role supports setting up a simple cluster by adding all the nodes in a
+play group that uses the role. It adds the nodes to `cluster_nodes` section
+in rabbitmq.conf file. All the nodes are `disc` nodes. The role also sets the
+same "Erlang Cookie" to all the nodes belonging to a cluster. In this way
+nodes join the cluster automatically during the bootstrap.
+
+For the initial deployment, it is advised to serialize the node deployment in
+a way that, at first, a single node is deployed, followed by all the other
+nodes in the second run. This would result in a consistent cluster setup.
+Playbook example:
+
+```yaml
+  - hosts: rabbitmq
+    become: True
+    serial:
+      - 1
+      - '100%'
+    roles:
+      - rabbitmq
 ```
 
 ### File descriptors
 
-`rabbitmq_fd_limit` Set it to a some value to override 1024 default (systemd supported)
+`rabbitmq_fd_limit` - set this to some numeric value to override 1024
+default. Currently only supports systemd.
 
 ## Testing
 
