@@ -12,7 +12,7 @@ Mayeu.RabbitMQ role, without SSL or federation support.
 
 Use Ansible galaxy to install this playbook:
 
-    $ ansible-galaxy install abelboldu.rabbitmq
+    $ ansible-galaxy install openstack-ansible-galaxy.rabbitmq
 
 ## Supported system
 
