@@ -54,11 +54,11 @@ identify members of a single cluster.
 
 ### Users
 
-`rabbitmq_userss` - list of users, and associated vhost and password.
+`rabbitmq_users` - list of users, and associated vhost and password.
 Example on defining the users configuration:
 
 ```yaml
-rabbitmq_userss:
+rabbitmq_users:
   - user:     user1
     password: password1             # Optional, defaults to ""
     vhost:    vhost1                # Optional, defaults to "/"
